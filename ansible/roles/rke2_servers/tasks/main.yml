@@ -1,0 +1,27 @@
+---
+# roles/rke2_servers/tasks/main.yml
+# Main task which sets up HA RKE2 cluster with kube-vip and Cilium.
+
+# Include variables
+- name: Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Stage all servers and prep for cluster build.
+- name: Stage | Call common task.
+  ansible.builtin.include_tasks: common.yml
+
+# Build first master server and start cluster.
+- name: Build | Call master-first task.
+  ansible.builtin.include_tasks: master-first.yml
+  when: inventory_hostname in groups['rke2_masters'][0]
+
+# Build all other masters and join them to the cluster.
+- name: Build | Call master-others task.
+  ansible.builtin.include_tasks: master-others.yml
+  when: inventory_hostname in groups['rke2_masters'][1:]
+
+# Build all worker servers and join them to the cluster.
+- name: Build | Call workers task.
+  ansible.builtin.include_tasks: workers.yml
+  when: inventory_hostname in groups['rke2_workers']

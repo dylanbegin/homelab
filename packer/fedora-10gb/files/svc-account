@@ -1,0 +1,1 @@
+svc-account ALL=(ALL:ALL) NOPASSWD: ALL #replace with service account

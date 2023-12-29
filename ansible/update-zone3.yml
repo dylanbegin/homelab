@@ -1,0 +1,6 @@
+# Weekly maintence for all servers on Zone3.
+
+- hosts: zone3_servers
+  become: true
+  roles:
+    - zone3_servers

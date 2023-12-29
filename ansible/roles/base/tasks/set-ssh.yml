@@ -1,0 +1,17 @@
+---
+# roles/base/task/set-ssh.yml
+# Set ssh keys for all servers.
+
+- name : SSH | Set auth/pub key for YOUR-SERVICE-ACCOUNT.
+  ansible.builtin.authorized_key:
+    user: YOUR-SERVICE-ACCOUNT       #replace with your service account
+    key: "PLACE PUBLIC SSH KEY HERE" #replace with your public ssh key
+
+- name: SSH | Set sshd_config file.
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart-sshd

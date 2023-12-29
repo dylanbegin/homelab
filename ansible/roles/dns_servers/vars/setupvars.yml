@@ -1,0 +1,38 @@
+---
+# roles/dns_servers/vars/setupvars.yml
+# Vars for pihole-FTL.conf
+# Ref:
+# https://github.com/pi-hole/pi-hole/blob/899cac0aac8e86f36f5b9aaac67c58922be8c79e/pihole
+# https://github.com/pi-hole/pi-hole/blob/899cac0aac8e86f36f5b9aaac67c58922be8c79e/advanced/Scripts/webpage.sh
+
+pihole_webui: 'traditional'
+pihole_webtheme: 'default-dark'
+pihole_dnssec: false
+pihole_rev_server: false
+pihole_rev_server_cidr: '10.10.10.1/24' #change to your cidr
+pihole_rev_server_target: '10.10.10.1'  #change to your gateway
+pihole_rev_server_domain: 'example.com' #change to your internal domain.
+pihole_blocking_enabled: true
+pihole_ipv4_address: ''
+pihole_ipv6_address: ''
+pihole_dhcp_active: false
+pihole_dhcp_start: '10.10.10.100/24' #change to your dhcp scope
+pihole_dhcp_end: '10.10.10.254/24'   #change to your dhcp scope
+pihole_dhcp_router: '10.10.10.1'     #change to your dhcp server
+pihole_dhcp_leasetime: 24
+pihole_pihole_domain: 'example.com'  #replace with your internal domain.
+pihole_dhcp_ipv6: false
+pihole_dhcp_rapid_commit: false
+pihole_pihole_interface: ''
+pihole_pihole_dns_1: '127.0.0.1#5335'
+pihole_pihole_dns_2: ''
+pihole_pihole_dns_3: ''
+pihole_pihole_dns_4: ''
+pihole_query_logging: true
+pihole_install_web_server: true
+pihole_install_web_interface: true
+pihole_lighttpd_enabled: true
+pihole_cache_size: 10000
+pihole_dns_fqdn_required: false
+pihole_dns_bogus_priv: false
+pihole_dnsmasq_listening: 'single'

@@ -1,0 +1,6 @@
+# Used for emergency security patches for all servers.
+
+- hosts: all
+  become: true
+  roles:
+    - base

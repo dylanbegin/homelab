@@ -1,0 +1,24 @@
+---
+# roles/dns_servers/handlers/main.yml
+# Handling all services.
+
+- name: enable-firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: restart-firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: restarted
+    enabled: true
+
+- name: restart-pihole
+  ansible.builtin.command: '/etc/.pihole/automated\ install/basic-install.sh --reconfigure --unattended'
+
+- name: restart-unbound
+  ansible.builtin.service:
+    name: unbound
+    state: restarted
+    enabled: true

@@ -1,0 +1,70 @@
+---
+# roles/dns_servers/vars/main.yml
+# All pihole package dependencies.
+
+# APT dependencies.
+pihole_deps_apt:
+  - ca-certificates
+  - cron
+  - curl
+  - dialog
+  - dns-root-data
+  - dnsutils
+  - firewalld
+  - git
+  - grep
+  - idn2
+  - iproute2
+  - iputils-ping
+  - jq
+  - libcap2
+  - libcap2-bin
+  - netcat-openbsd
+  - procps
+  - psmisc
+  - sudo
+  - unzip
+  - lighttpd
+  - php8-common
+  - php8-cgi
+  - php8-sqlite3
+  - php8-xml
+  - php8-intl
+  - unbound
+
+# RPM dependencies.
+pihole_deps_dnf:
+  - bind-utils
+  - ca-certificates
+  - chkconfig
+  - cronie
+  - curl
+  - dialog
+  - findutils
+  - firewalld
+  - git
+  - grep
+  - iproute
+  - jq
+  - libcap
+  - libidn2
+  - newt
+  - nmap-ncat
+  - procps-ng
+  - psmisc
+  - sqlite
+  - sudo
+  - unzip
+  - lighttpd
+  - lighttpd-fastcgi
+  - php-common
+  - php-cli
+  - php-pdo
+  - php-xml
+  - php-json
+  - php-intl
+  - unbound
+
+# Database variables.
+pihole_default_ad_insert: 'insert or replace into \"adlist\" (id, address, enabled, comment) values'
+pihole_default_sqlite3: '/usr/bin/sqlite3 /etc/pihole/gravity.db'

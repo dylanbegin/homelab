@@ -1,0 +1,6 @@
+# Weekly maintence for all servers on Zone2.
+
+- hosts: zone2_servers
+  become: true
+  roles:
+    - zone2_servers

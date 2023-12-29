@@ -1,0 +1,5 @@
+---
+# /roles/base/task/main.yml
+# List of tasks to run for base role.
+- ansible.builtin.import_tasks: updates.yml
+- ansible.builtin.import_tasks: set-ssh.yml

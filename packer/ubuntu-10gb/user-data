@@ -1,0 +1,114 @@
+# cloud-config
+# Ubuntu 23
+# ---
+autoinstall:
+  version: 1
+  source:
+    id: ubuntu-server-minimal
+    search_drivers: false
+  apt:
+    disable_components: []
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches:
+      - amd64
+      - i386
+      uri: http://us.archive.ubuntu.com/ubuntu
+    - arches:
+      - default
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  kernel:
+    package: linux-generic
+  drivers:
+    install: false
+  packages: [qemu-guest-agent]
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+  locale: en_US.UTF-8 
+#  network:
+#    version: 2
+#    ethernets:
+#      enp0s18:
+#        dhcp4: true
+  timezone: America/Los_Angeles
+  ssh:
+    allow-pw: true
+    authorized-keys: [REPLACE WITH PUBLIC SSH KEY] 
+    install-server: true
+  identity:
+    hostname: ubuntu-23-10gb-base
+    username: SVC-ACCOUNT
+    realname: DISPLAY NAME
+    password: REPLACE
+    storage:
+    config:
+    - ptable: gpt
+      path: /dev/sda
+      wipe: superblock-recursive
+      preserve: false
+      name: ''
+      grub_device: false
+      type: disk
+      id: disk-sda
+    - device: disk-sda
+      size: 564133888
+      wipe: superblock
+      flag: boot
+      number: 1
+      preserve: false
+      grub_device: true
+      offset: 1048576
+      type: partition
+      id: partition-0
+    - fstype: fat32
+      volume: partition-0
+      preserve: false
+      type: format
+      id: format-0
+    - device: disk-sda
+      size: 536870912
+      wipe: superblock
+      number: 2
+      preserve: false
+      grub_device: false
+      offset: 565182464
+      type: partition
+      id: partition-1
+    - fstype: ext4
+      volume: partition-1
+      preserve: false
+      type: format
+      id: format-1
+    - device: disk-sda
+      size: 9634316288
+      wipe: superblock
+      number: 3
+      preserve: false
+      grub_device: false
+      offset: 1102053376
+      type: partition
+      id: partition-2
+    - fstype: ext4
+      volume: partition-2
+      preserve: false
+      type: format
+      id: format-2
+    - path: /
+      label: root
+      device: format-2
+      type: mount
+      id: mount-2
+    - path: /boot
+      label: boot
+      device: format-1
+      type: mount
+      id: mount-1
+    - path: /boot/efi
+      label: efi
+      device: format-0
+      type: mount
+      id: mount-0
+  updates: security

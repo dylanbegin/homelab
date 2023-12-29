@@ -1,0 +1,155 @@
+---
+# roles/rke2_servers/tasks/master-first.yml
+# Setup the very first RKE2 master server which forms the cluster.
+
+# Include variables
+- name: Master First | Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Prepare server for RKE2 install.
+- name: Master First | RKE2 | Create config directory.
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Master First | RKE2 | Copy config file.
+  ansible.builtin.template:
+    src: config-first.yml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    owner: root
+    group: root
+    mode: 0600
+
+# Create manifest directory and add Cilium manifests.
+- name: Master First | RKE2 | Create manifest directory.
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/server/manifests/
+    owner: root
+    group: root
+    mode: 0644
+    state: directory
+
+- name: Master First | RKE2 | Copy Cilium file.
+  ansible.builtin.template:
+    src: manifest-cilium.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-config.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+# - name: Master First | RKE2 | Copy Cilium l2 file.
+#   ansible.builtin.template:
+#     src: manifest-cilium-l2.yml.j2
+#     dest: /var/lib/rancher/rke2/server/manifests/cilium-l2.yaml
+#     owner: root
+#     group: root
+#     mode: 0644
+
+# Create Cilium GatewayAPI CRD manifests.
+- name: Master First | RKE2 | Copy Cilium GatewayClass.
+  ansible.builtin.template:
+    src: manifest-cilium-crd-gwc.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-crd-gwc.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Master First | RKE2 | Copy Cilium Gateway.
+  ansible.builtin.template:
+    src: manifest-cilium-crd-gw.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-crd-gw.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Master First | RKE2 | Copy Cilium HTTPRoute.
+  ansible.builtin.template:
+    src: manifest-cilium-crd-http.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-crd-http.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Master First | RKE2 | Copy Cilium ReferenceGrant.
+  ansible.builtin.template:
+    src: manifest-cilium-crd-rg.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-crd-rg.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Master First | RKE2 | Copy Cilium TLSRoute.
+  ansible.builtin.template:
+    src: manifest-cilium-crd-tls.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cilium-crd-tls.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+# Add kube-vip manifest.
+- name: Master First | RKE2 | Create static pod directory.
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/agent/pod-manifests/
+    owner: root
+    group: root
+    mode: 0644
+    state: directory
+
+- name: Master First | RKE2 | Copy kube-vip RBAC file.
+  ansible.builtin.template:
+    src: manifest-kube-vip-rbac.yml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kube-vip-rbac.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Master First | RKE2 | Copy kube-vip file.
+  ansible.builtin.template:
+    src: manifest-kube-vip.yml.j2
+    dest: /var/lib/rancher/rke2/agent/pod-manifests/kube-vip.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+# Install RKE2.
+- name: Master First | RKE2 | Run install script.
+  ansible.builtin.command:
+    cmd: /tmp/rke2-install.sh
+  environment:
+    INSTALL_RKE2_CHANNEL: stable
+    INSTALL_RKE2_TYPE: server
+
+# Start RKE2.
+- name: Master First | RKE2 | Start server.
+  ansible.builtin.service:
+    name: rke2-server
+    state: started
+    enabled: true
+
+# Give pods rollout grace period.
+- name: Master First | RKE2 | Wait for pod rollout.
+  ansible.builtin.pause:
+    seconds: 60
+
+# Export cli environment variables on master.
+- name: Master First | RKE2 | Export bin variable.
+  ansible.builtin.lineinfile:
+    path: /root/.bashrc
+    line: '{{ item }}'
+    insertafter: '^export PATH'
+    create: yes
+  loop:
+    - 'export PATH=/var/lib/rancher/rke2/bin:$PATH'
+    - 'export KUBECONFIG=/etc/rancher/rke2/rke2.yaml'
+
+# Download kubeconfig to localhost.
+# DONT FORGET - change the ip address in the file to the VIP!
+- name: Master First | RKE2 | Download kubeconfig file.
+  ansible.builtin.fetch:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: /home/{{ local_user }}/.kube/config
+    flat: yes

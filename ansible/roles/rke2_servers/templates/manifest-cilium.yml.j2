@@ -1,0 +1,92 @@
+#; cilium config /var/lib/rancher/rke2/server/manifests/cilium.yaml
+#; ref: https://github.com/rancher/rke2-charts/blob/main/charts/rke2-cilium/rke2-cilium/1.14.400/values.yaml
+#; ref: https://github.com/cilium/cilium/blob/main/install/kubernetes/cilium/values.yaml
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-cilium
+  namespace: kube-system
+spec:
+  targetNamespace: kube-system
+  bootstrap: true
+  valuesContent: |-
+    autoDirectNodeRoutes: true
+    bgp:
+      enabled: false
+    bpf:
+      autoMount:
+        enabled: true
+      masquerade: true
+    cluster:
+      name: onprem
+      id: 1
+    endpointRoutes:
+      enabled: true
+    encryption:
+      enabled: true
+      type: wireguard
+      nodeEncryption: false
+      wireguard:
+        userspaceFallback: false
+    externalIPs:
+      enabled: false
+    gatewayAPI:
+      enabled: true
+    hubble:
+      enabled: true
+      metrics:
+        enabled:
+        - dns:query;ignoreAAAA
+        - drop
+        - tcp
+        - flow
+        - icmp
+        - http
+      relay:
+        enabled: true
+        rollOutPods: true
+        replicas: 1
+      preferIpv6: false
+      ui:
+        enabled: true
+        rollOutPods: true
+        replicas: 1
+        # ingress:
+        #   enabled: true
+        #   hosts:
+        #     - {{ cilium_hubble_fqdn }}
+        #   annotations:
+        #     cert-manager.io/cluster-issuer: ca-issuer
+        #   tls:
+        #   - secretName: hubble-ingress-tls
+        #     hosts:
+        #     - {{ cilium_hubble_fqdn }}
+    ipam:
+      mode: kubernetes
+    ipv4NativeRoutingCIDR: "{{ cluster_cidr }}"
+    ipv6:
+      enabled: false
+    k8sServiceHost: "{{ rke2_vip_ip }}"
+    k8sServicePort: 6443
+    kubeProxyReplacement: true
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    l2announcements:
+      enabled: false
+      # leaseDuration: 120s
+      # leaseRenewDeadline: 60s
+      # leaseRetryPeriod: 1s
+    l7Proxy: true
+    loadBalancer:
+      algorithm: maglev
+      mode: hybrid
+      acceleration: native
+    localRedirectPolicy: true
+    operator:
+      replicas: 2
+      rollOutPods: true
+    rollOutCiliumPods: true
+    securityContext:
+      privileged: true
+    tunnelProtocol: geneve
+    routingMode: native

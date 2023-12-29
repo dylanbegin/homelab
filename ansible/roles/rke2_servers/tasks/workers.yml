@@ -1,0 +1,40 @@
+---
+# roles/rke2_servers/tasks/workers.yml
+# Join all worker nodes to the RKE2 cluster.
+
+# Include variables
+- name: Workers | Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Prepare servers for RKE2 install.
+- name: Workers | RKE2 | Create config directory.
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Workers | RKE2 | Copy config file.
+  ansible.builtin.template:
+    src: config-workers.yml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    owner: root
+    group: root
+    mode: 0600
+
+# Install RKE2.
+- name: Workers | RKE2 | Run install script.
+  ansible.builtin.command:
+    cmd: /tmp/rke2-install.sh
+  environment:
+    INSTALL_RKE2_CHANNEL: latest
+    INSTALL_RKE2_TYPE: agent
+
+# Start RKE2.
+- name: Workers | RKE2 | Start worker agent.
+  ansible.builtin.service:
+    name: rke2-agent
+    state: started
+    enabled: true

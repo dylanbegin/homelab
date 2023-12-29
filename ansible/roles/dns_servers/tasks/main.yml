@@ -1,0 +1,146 @@
+---
+# roles/dns_servers/tasks/main.yml
+# Install DNS servers with Pi-hole with unbound DNS.
+# Ref:
+# https://docs.pi-hole.net/
+# https://github.com/r-pufky/ansible_pihole
+
+# Include variables
+- name: Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Install dependencies.
+- name: Deps | Install pi-hole dependencies APT.
+  ansible.builtin.apt:
+    name: '{{ pihole_deps_apt }}'
+    state: latest
+    update_cache: true
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Deps | Install pi-hole dependencies RPM.
+  ansible.builtin.dnf:
+    name: '{{ pihole_deps_dnf }}'
+    state: latest
+    update_cache: true
+  when: ansible_distribution in ['CentOS', 'Fedora', 'Rocky']
+
+# Disable SELinux as a config is not yet availible.
+- name: SELinux | Modify SELinux file.
+  ansible.builtin.lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+
+- name: SELinux | Disable SELinux.
+  ansible.builtin.command: setenforce 0
+
+# Configure firewall for pihole.
+# This first play is needed to fix current bug with python3.
+# More info here: https://github.com/ansible-collections/ansible.posix/issues/398
+- name: Firewall | Enable service.
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Firewall | Modify firewall default zone.
+  ansible.posix.firewalld:
+    zone: public
+    service: '{{ item }}'
+    state: enabled
+    permanent: true
+  loop:
+    - http
+    - dns
+    - dhcp
+
+- name: Firewall | Create firewall pihole-ftl zone.
+  ansible.posix.firewalld:
+    zone: pihole
+    state: present
+    permanent: true
+
+- name: Firewall | Add local interface for pihole-ftl.
+  ansible.posix.firewalld:
+    zone: pihole
+    interface: lo
+    state: enabled
+    permanent: true
+
+- name: Firewall | Modify firewall pihole zone.
+  ansible.posix.firewalld:
+    zone: pihole
+    port: 4711/tcp
+    state: enabled
+    permanent: true
+  notify: restart-firewalld
+
+# Setup deployment configs.
+- name: Stage | Create pi-hole var directory.
+  ansible.builtin.file:
+    path: /etc/pihole
+    mode: 0755
+    state: directory
+
+- name: Stage | Set deployment configs.
+  ansible.builtin.template:
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+    owner: root
+    group: root
+    mode: 0664
+
+# Install pi-hole.
+- name: pihole | Get install script.
+  ansible.builtin.get_url:
+    url: https://install.pi-hole.net
+    dest: /tmp/pihole-install.sh
+    mode: u+rwx
+
+# Setting env var isn't working so we need to add it to the script.
+- name: pihole | Disable OS check from install script.
+  ansible.builtin.lineinfile:
+    path: /tmp/pihole-install.sh
+    insertafter: '^export PATH\+='
+    line: export PIHOLE_SKIP_OS_CHECK=true
+
+- name: pihole | Run installer script.
+  ansible.builtin.command: /tmp/pihole-install.sh --unattended
+
+- name: pihole | Set FTL config and restart pihole.
+  ansible.builtin.template:
+    src: pihole-FTL.conf.j2
+    dest: /etc/pihole/pihole-FTL.conf
+    owner: pihole
+    group: root
+    mode: 0664
+  notify: restart-pihole
+
+# Configure Gravity Ad blocking database.
+- name: pihole | Add all ad blocklist.
+  ansible.builtin.command: '{{ pihole_default_sqlite3 }} "{{ pihole_default_ad_insert }} ({{ item.id }}, \"{{ item.address }}\", {{ item.enabled|int }}, \"{{ item.comment }}\")"'
+  loop: '{{ pihole_blocklist }}'
+  when: pihole_blocklist|length > 0
+
+# Configure Pihole with unbound DNS.
+- name: unbound | Setup config directory.
+  ansible.builtin.file:
+    path: /etc/unbound/unbound.conf.d
+    mode: 0755
+    state: directory
+
+- name: unbound | Get root hints file.
+  ansible.builtin.get_url:
+    url: https://www.internic.net/domain/named.root
+    dest: /var/lib/unbound/root.hints
+    mode: 0664
+
+- name: unbound | Import config file.
+  ansible.builtin.copy:
+    src: unbound.conf
+    dest: /etc/unbound/unbound.conf
+    owner: root
+    group: root
+    mode: 0664
+  notify: restart-unbound

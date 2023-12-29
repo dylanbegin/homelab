@@ -1,0 +1,43 @@
+---
+# roles/base/task/updates.yml
+# System updates.
+
+# APT updates.
+- name: Update APT | Upgrade OS.
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: yes
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Update APT | Update all packages.
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Update APT | Clean cache.
+  ansible.builtin.apt:
+    autoclean: true
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Update APT | Clean old packages.
+  ansible.builtin.apt:
+    autoremove: true
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+# RPM updates.
+- name: Update RPM | Update cache.
+  ansible.builtin.dnf:
+    update_cache: yes
+  when: ansible_distribution in ['CentOS', 'Fedora', 'Rocky']
+
+- name: Update RPM | Upgrade all packages.
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: ansible_distribution in ['CentOS', 'Fedora', 'Rocky']
+
+- name: Update RPM | Clean old packages.
+  ansible.builtin.dnf:
+    autoremove: yes
+  when: ansible_distribution in ['CentOS', 'Fedora', 'Rocky']

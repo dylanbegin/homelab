@@ -1,0 +1,9 @@
+---
+# roles/base/handlers/main.yml
+# Handling all services.
+
+- name: restart-sshd
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+    enabled: true

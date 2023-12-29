@@ -1,0 +1,230 @@
+---
+# roles/dns_servers/vars/blocklist.yml
+# This is the source of all addblock list.
+# Ref: https://firebog.net/
+
+pihole_blocklist:
+
+# Suspicious Lists
+  - id: 1
+    address: 'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts'
+    enabled: true
+    comment: 'stevenblacks hosts adlist'
+
+  - id: 2
+    address: 'https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt'
+    enabled: true
+    comment: 'PolishFiltersTeam KADhosts'
+
+  - id: 3
+    address: 'https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts'
+    enabled: true
+    comment: 'Fademinds Spammers'
+
+  - id: 4
+    address: 'https://v.firebog.net/hosts/static/w3kbl.txt'
+    enabled: true
+    comment: 'WaLLy3Ks Blacklist'
+
+  - id: 5
+    address: 'https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/master/spammers.txt'
+    enabled: true
+    comment: 'Matomo Referrer Spam'
+
+  - id: 6
+    address: 'https://someonewhocares.org/hosts/zero/hosts'
+    enabled: true
+    comment: 'Someone Who Cares'
+
+  - id: 7
+    address: 'https://raw.githubusercontent.com/VeleSila/yhosts/master/hosts'
+    enabled: true
+    comment: 'VeleSila yhosts'
+
+  - id: 8
+    address: 'https://winhelp2002.mvps.org/hosts.txt'
+    enabled: true
+    comment: 'Winhelp2002 MVPS'
+
+  - id: 9
+    address: 'https://v.firebog.net/hosts/neohostsbasic.txt'
+    enabled: true
+    comment: 'neoFelhzs neoHosts'
+
+  - id: 10
+    address: 'https://raw.githubusercontent.com/RooneyMcNibNug/pihole-stuff/master/SNAFU.txt'
+    enabled: true
+    comment: 'RooneyMcNibNugs SNAFU list'
+
+  - id: 11
+    address: 'https://paulgb.github.io/BarbBlock/blacklists/hosts-file.txt'
+    enabled: true
+    comment: 'paulgbs BarbBlock'
+
+# Advertising Lists
+  - id: 12
+    address: 'https://adaway.org/hosts.txt'
+    enabled: true
+    comment: 'AdAway'
+
+  - id: 13
+    address: 'https://v.firebog.net/hosts/AdguardDNS.txt'
+    enabled: true
+    comment: 'Adguard DNS'
+
+  - id: 14
+    address: 'https://v.firebog.net/hosts/Admiral.txt'
+    enabled: true
+    comment: 'LanikSJs Admiral Anti-Adblock'
+
+  - id: 15
+    address: 'https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt'
+    enabled: true
+    comment: 'Anudeep NDs Blacklist'
+
+  - id: 16
+    address: 'https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt'
+    enabled: true
+    comment: 'Disconnect Ads'
+
+  - id: 17
+    address: 'https://v.firebog.net/hosts/Easylist.txt'
+    enabled: true
+    comment: 'Easylist'
+
+  - id: 18
+    address: 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext'
+    enabled: true
+    comment: 'Peter Lowes Adservers'
+
+  - id: 19
+    address: 'https://raw.githubusercontent.com/FadeMind/hosts.extras/master/UncheckyAds/hosts'
+    enabled: true
+    comment: 'Fademinds Unchecky Ads'
+
+  - id: 20
+    address: 'https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts'
+    enabled: true
+    comment: 'hostsVN'
+
+  - id: 21
+    address: 'https://raw.githubusercontent.com/jdlingyu/ad-wars/master/hosts'
+    enabled: true
+    comment: 'Jdlingyus Ad-wars'
+
+# Tracking & Telemetry Lists
+  - id: 22
+    address: 'https://v.firebog.net/hosts/Easyprivacy.txt'
+    enabled: true
+    comment: 'Easyprivacy'
+
+  - id: 23
+    address: 'https://v.firebog.net/hosts/Prigent-Ads.txt'
+    enabled: true
+    comment: 'Fabrice Prigents Ads'
+
+  - id: 24
+    address: 'https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.2o7Net/hosts'
+    enabled: true
+    comment: 'Fademinds 2o7 Network Trackers'
+
+  - id: 25
+    address: 'https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt'
+    enabled: true
+    comment: 'Crazy Maxs Microsoft Telemetry'
+
+  - id: 26
+    address: 'https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt'
+    enabled: true
+    comment: 'Geoffrey Frogeyes First-Party Trackers'
+
+  - id: 27
+    address: 'https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt'
+    enabled: true
+    comment: 'Lightswitch05s Ads & Tracking'
+
+  - id: 28
+    address: 'https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/android-tracking.txt'
+    enabled: true
+    comment: 'Perflysts Android Trackers'
+
+  - id: 29
+    address: 'https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/SmartTV.txt'
+    enabled: true
+    comment: 'Perflysts SmartTV Domains'
+
+  - id: 30
+    address: 'https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/AmazonFireTV.txt'
+    enabled: true
+    comment: 'Perflysts Amazon FireTV Domains'
+
+  - id: 31
+    address: 'https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt'
+    enabled: true
+    comment: 'Quidsup Trackers'
+
+# Malicious lists
+  - id: 32
+    address: 'https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt'
+    enabled: true
+    comment: 'DandelionSprouts Anti Malware Filter'
+
+  - id: 33
+    address: 'https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt'
+    enabled: true
+    comment: 'DigitalSide Threat-Intel'
+
+  - id: 34
+    address: 'https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt'
+    enabled: true
+    comment: 'Disconnect Malvertising'
+
+  - id: 35
+    address: 'https://v.firebog.net/hosts/Prigent-Crypto.txt'
+    enabled: true
+    comment: 'Fabrice Prigents Cryptojacking'
+
+  - id: 36
+    address: 'https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts'
+    enabled: true
+    comment: 'Fademinds Risky Hosts'
+
+  - id: 37
+    address: 'https://bitbucket.org/ethanr/dns-blacklists/raw/8575c9f96e5b4a1308f2f12394abd86d0927a4a0/bad_lists/Mandiant_APT1_Report_Appendix_D.txt'
+    enabled: true
+    comment: 'Mandiant APT1 Report'
+
+  - id: 38
+    address: 'https://phishing.army/download/phishing_army_blocklist_extended.txt'
+    enabled: true
+    comment: 'Phishing Armys Extended Blocklist'
+
+  - id: 39
+    address: 'https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt'
+    enabled: true
+    comment: 'Quidsup Malicious'
+
+  - id: 40
+    address: 'https://v.firebog.net/hosts/RPiList-Malware.txt'
+    enabled: true
+    comment: 'RPiList Malware'
+
+  - id: 41
+    address: 'https://v.firebog.net/hosts/RPiList-Phishing.txt'
+    enabled: true
+    comment: 'RPiList Phishing'
+
+  - id: 42
+    address: 'https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt'
+    enabled: true
+    comment: 'Spam404'
+
+  - id: 43
+    address: 'https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/master/generated/hosts'
+    enabled: true
+    comment: 'Echaps Stalkerware Indicators'
+
+  - id: 44
+    address: 'https://urlhaus.abuse.ch/downloads/hostfile/'
+    enabled: true
+    comment: 'URLhaus Malicious URL blocklist'

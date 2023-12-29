@@ -1,0 +1,132 @@
+---
+# roles/rke2_servers/tasks/common.yml
+# Stage all RKE2 servers for cluster deployment.
+
+# Include variables
+- name: Common | Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Install RKE2 dependencies and script.
+- name: Common | Deps | Install RKE2 dependencies APT.
+  ansible.builtin.apt:
+    name: '{{ rke2_deps_apt }}'
+    state: latest
+    update_cache: true
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Common | Deps | Install RKE2 dependencies RPM.
+  ansible.builtin.dnf:
+    name: '{{ rke2_deps_dnf }}'
+    state: latest
+    update_cache: true
+  when: ansible_distribution in ['CentOS', 'Fedora', 'Rocky']
+
+- name: Common | Deps | Fetch install script.
+  ansible.builtin.get_url:
+    url: https://get.rke2.io
+    dest: /tmp/rke2-install.sh
+    mode: u+rwx
+
+# Set SELinux to permissive for Wireguard.
+- name: Common | SELinux | Modify SELinux file.
+  ansible.builtin.lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=permissive
+
+- name: Common | SELinux | Set SELinux Permissive.
+  ansible.builtin.command: setenforce 0
+
+# Enable kernel modules
+- name: Common | Kernel | Copy kmods file for IPVS.
+  ansible.builtin.copy:
+    src: kube-vip-ipvs.conf
+    dest: /etc/modules-load.d/kube-vip-ipvs.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart-kmods
+
+- name: Common | Kernel | Copy kmods file for wireguard.
+  ansible.builtin.copy:
+    src: cilium-wireguard.conf
+    dest: /etc/modules-load.d/cilium-wireguard.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart-kmods
+
+# Configure firewalld
+- name: Common | Firewall | Modify firewall default zone.
+  ansible.posix.firewalld:
+    zone: public
+    port: '{{ item }}'
+    state: enabled
+    permanent: true
+  loop:
+    - 9345/tcp        # RKE2 supervisor API
+    - 6443/tcp        # Kubernetes API
+    - 10250/tcp       # kubelet metrics
+    - 2379/tcp        # etcd client port
+    - 2380/tcp        # etcd peer port
+    - 2381/tcp        # etcd metrics port
+    - 30000-32767/tcp # NodePort port range
+    - 8472/udp        # Cilium CNI VXLAN
+    - 6081/udp        # Cilium GENEVE overlay
+    - 4240/tcp        # Cilium CNI health checks
+    - 4244/tcp        # Hubble relay
+    - 51820/udp       # Wireguard IPV4 default
+    - 51871/udp       # Wireguard Cilium Node Port
+  notify: restart-firewalld
+
+- name: Common | Firewall | Modify firewall trusted zone.
+  ansible.posix.firewalld:
+    zone: trusted
+    source: '{{ item }}'
+    state: enabled
+    permanent: true
+  loop:
+    - "{{ service_cidr }}"
+    - "{{ cluster_cidr }}"
+  notify: restart-firewalld
+
+- name: Common | Firewall | Allow HTTP and HTTPS service ingress.
+  ansible.posix.firewalld:
+    zone: public
+    service: '{{ item }}'
+    state: enabled
+    permanent: true
+  loop:
+    - http
+    - https
+  notify: restart-firewalld
+
+- name: Common | Firewall | Enable masquerading for public zone.
+  ansible.posix.firewalld:
+    zone: public
+    masquerade: true
+    state: enabled
+    permanent: true
+  notify: restart-firewalld
+
+# Fix NetworkManager.
+- name: Common | NetworkManager | Disable service nm-cloud-setup.service.
+  ansible.builtin.systemd:
+    name: nm-cloud-setup.service
+    state: stopped
+    enabled: no
+  when: ansible_facts.services["nm-cloud-setup.service"] is defined
+  notify: restart-networkmanager
+
+- name: Common | NetworkManager | Disable nm-cloud-setup.timer unit.
+  ansible.builtin.systemd:
+    name: nm-cloud-setup.timer
+    state: stopped
+    enabled: no
+  when: ansible_facts.services["nm-cloud-setup.service"] is defined
+  notify: restart-networkmanager
+
+# Force handlers to run.
+- name: Common | Handlers | Force handlers to run.
+  meta: flush_handlers

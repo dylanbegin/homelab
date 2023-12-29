@@ -1,0 +1,62 @@
+---
+# roles/rke2_servers/tasks/master-others.yml
+# Join other RKE2 master servers after cluster initiation.
+
+# Include variables
+- name: Master Others | Import | Include variable files.
+  ansible.builtin.include_vars:
+    dir: vars
+
+# Prepare servers for RKE2 install.
+- name: Master Others | RKE2 | Create config directory.
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Master Others | RKE2 | Copy config file.
+  ansible.builtin.template:
+    src: config-others.yml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    owner: root
+    group: root
+    mode: 0600
+
+# Add kube-vip manifest.
+- name: Master First | RKE2 | Create static pod directory.
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/agent/pod-manifests/
+    owner: root
+    group: root
+    mode: 0644
+    state: directory
+
+- name: Master First | RKE2 | Copy kube-vip file.
+  ansible.builtin.template:
+    src: manifest-kube-vip.yml.j2
+    dest: /var/lib/rancher/rke2/agent/pod-manifests/kube-vip.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+# Install RKE2.
+- name: Master Others | RKE2 | Run install script.
+  ansible.builtin.command:
+    cmd: /tmp/rke2-install.sh
+  environment:
+    INSTALL_RKE2_CHANNEL: stable
+    INSTALL_RKE2_TYPE: server
+
+# Give pods rollout grace period.
+- name: Master First | RKE2 | Wait for pod rollout.
+  ansible.builtin.pause:
+    seconds: 30
+
+# Start RKE2.
+- name: Master Others | RKE2 | Start server.
+  ansible.builtin.service:
+    name: rke2-server
+    state: started
+    enabled: true

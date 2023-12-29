@@ -1,0 +1,16 @@
+# Ubunutu Server main repo and updates.
+deb http://us.archive.ubuntu.com/ubuntu lunar main restricted
+deb http://us.archive.ubuntu.com/ubuntu lunar-updates main restricted
+
+# Ubunutu Server security repo and updates.
+deb http://us.archive.ubuntu.com/ubuntu lunar-security main restricted
+deb http://us.archive.ubuntu.com/ubuntu lunar-security universe
+deb http://us.archive.ubuntu.com/ubuntu lunar-security multiverse
+
+# Ubuntu Server universe repo and updates.
+deb http://us.archive.ubuntu.com/ubuntu lunar universe
+deb http://us.archive.ubuntu.com/ubuntu lunar-updates universe
+
+# Ubuntu Server multiverse repo and updates.
+deb http://us.archive.ubuntu.com/ubuntu lunar multiverse
+deb http://us.archive.ubuntu.com/ubuntu lunar-updates multiverse

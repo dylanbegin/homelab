@@ -1,0 +1,1 @@
+  SERVICE-ACCOUNT ALL=(ALL:ALL) NOPASSWD: ALL #replace service account

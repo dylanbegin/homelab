@@ -1,0 +1,75 @@
+---
+# kube-vip config /var/lib/rancher/rke2/server/manifests/kube-vip.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: kube-vip
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/instance: kube-vip
+    app.kubernetes.io/name: kube-vip
+spec:
+  containers:
+  - args: ["manager"]
+    env:
+    - name: vip_arp
+      value: "true"
+    - name: port
+      value: "6443"
+    - name: vip_interface
+      value: {{ rke2_vip_iface }}
+    - name: vip_cidr
+      value: "{{ rke2_vip_cidr }}"
+    - name: cp_enable
+      value: "true"
+    - name: cp_namespace
+      value: kube-system
+    - name: vip_ddns
+      value: "false"
+    - name: svc_enable
+      value: "false"
+    - name: vip_leaderelection
+      value: "true"
+    - name: vip_leaseduration
+      value: "5"
+    - name: vip_renewdeadline
+      value: "3"
+    - name: vip_retryperiod
+      value: "1"
+    - name: address
+      value: {{ rke2_vip_ip }}
+    - name: lb_enable
+      value: "true"
+    - name: lb_port
+      value: "6443"
+    - name: lb_fwdmethod
+      value: local
+    image: ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}
+    imagePullPolicy: IfNotPresent
+    name: kube-vip
+    resources: {}
+    securityContext:
+      capabilities:
+        add: ["NET_ADMIN", "NET_RAW", "SYS_TIME"]
+    volumeMounts:
+    - mountPath: /etc/kubernetes/admin.conf
+      name: kubeconfig
+  hostAliases:
+  - hostnames:
+    - kubernetes
+    ip: 127.0.0.1
+  hostNetwork: true
+  volumes:
+  - hostPath:
+      path: /etc/rancher/rke2/rke2.yaml
+    name: kubeconfig
+  tolerations:
+  - key: "CriticalAddonsOnly"
+    effect: "NoExecute"
+    operator: "Exists"
+  - effect: NoSchedule
+    operator: Exists
+  - effect: NoExecute
+    operator: Exists
+status: {}

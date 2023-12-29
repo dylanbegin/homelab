@@ -1,0 +1,37 @@
+---
+# roles/rke2_servers/vars/main.yml
+# All RKE2 package dependencies.
+
+# APT dependencies.
+rke2_deps_apt: 
+  - firewalld
+  - wireguard
+
+# RPM dependencies.
+rke2_deps_dnf:
+  - firewalld
+  - wireguard-tools
+
+# VIP info.
+kube_vip_version: v0.6.0
+rke2_vip_iface: eth0 #Physical interface.
+rke2_vip_ip: 10.10.10.40
+rke2_vip_cidr: 32 #Only list the CIDR notation.
+rke2_vip_fqdn: rke.example.com #replace with your vip fqdn
+
+# list all master servers here for the tls-san.
+rke2_tls_san:
+  - rke-m1.example.com
+  - rke-m2.example.com
+  - rke-m3.example.com
+
+# Cluster netwroking and config options:
+cluster_debug: false
+node_cidr: 10.10.10.0/24 #Node/VM CIDR
+service_cidr: 10.11.0.0/16 #K8s Service CIDR
+cluster_cidr: 10.12.0.0/16 #K8s POD CIDR
+cluster_dns: 10.11.0.10 #Must be in service cidr
+
+# Cilium variables
+cilium_hubble_fqdn: hubble.local
+cilium_cluster_pod_cidr: 24 #Pod CIDR per node

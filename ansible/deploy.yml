@@ -1,0 +1,24 @@
+---
+# Master deployment playbook for all servers on fresh site.
+
+# Config and deploy DNS servers.
+- hosts: dns_servers
+  become: true
+  roles:
+    - dns_servers
+  environment:
+    PIHOLE_SKIP_OS_CHECK: "true"
+
+# Update all servers.
+- hosts: all
+  become: true
+  roles:
+    - base
+
+# Config and deploy RKE2 HA cluster
+- hosts:
+    - rke2_masters
+    - rke2_workers
+  become: true
+  roles:
+    - rke2_servers
